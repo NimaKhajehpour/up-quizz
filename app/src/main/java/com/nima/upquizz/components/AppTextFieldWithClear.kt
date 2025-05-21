@@ -22,6 +22,8 @@ fun AppTextFieldWithClear(
     value: String,
     singleLine: Boolean,
     label: String,
+    isError: Boolean = false,
+    supportingText: (@Composable() () -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onValueChanged: (String) -> Unit,
     onClear: () -> Unit
@@ -50,6 +52,8 @@ fun AppTextFieldWithClear(
         label = {
             Text(label)
         },
-        visualTransformation = visualTransformation
+        visualTransformation = visualTransformation,
+        isError = isError,
+        supportingText = supportingText
     )
 }

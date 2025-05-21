@@ -34,6 +34,7 @@ import com.nima.upquizz.components.AppTextFieldWithClear
 import com.nima.upquizz.datastore.AppDatastore
 import com.nima.upquizz.navigation.main.MainScreens
 import com.nima.upquizz.network.models.errors.HttpError
+import com.nima.upquizz.network.models.errors.ValidationError
 import com.nima.upquizz.network.models.requests.UserCreateModel
 import com.nima.upquizz.network.models.responses.TokenResponse
 import com.nima.upquizz.viewmodels.RegisterViewModel
@@ -44,14 +45,14 @@ import retrofit2.Response
 fun RegisterScreen(
     navController: NavController,
     viewModel: RegisterViewModel
-) { //todo Add error handling of every field
+) { 
     val scope = rememberCoroutineScope()
     val gson = Gson()
     val context = LocalContext.current
     val appDatastore = AppDatastore(context)
 
     var userRequest: UserCreateModel by remember {
-        mutableStateOf(UserCreateModel("","","", ""))
+        mutableStateOf(UserCreateModel("","",null, ""))
     }
 
     var overallError by remember {
@@ -62,13 +63,17 @@ fun RegisterScreen(
         mutableStateOf(null)
     }
 
+    var errorResponse by remember {
+        mutableStateOf<ValidationError?>(null)
+    }
+
     LaunchedEffect (registerResponse){
         if (registerResponse != null){
             when (registerResponse!!.code()) {
                 200 -> {
                     appDatastore.saveToken(registerResponse!!.body()!!.access_token)
                     navController.navigate(MainScreens.MainScreen.name){
-                        popUpTo(MainScreens.MainScreen.name){
+                        popUpTo(MainScreens.Register.name){
                             inclusive = true
                         }
                         launchSingleTop = true
@@ -78,7 +83,7 @@ fun RegisterScreen(
                     overallError = gson.fromJson(registerResponse!!.errorBody()!!.string(), HttpError::class.java)
                 }
                 422 -> {
-                    Log.d("LOL", "RegisterScreen: ${registerResponse!!.errorBody()!!.string()}")
+                    errorResponse = gson.fromJson(registerResponse!!.errorBody()!!.string(), ValidationError::class.java)
                 }
                 else -> {
                     overallError = overallError.copy(detail = "Error Occurred")
@@ -121,6 +126,8 @@ fun RegisterScreen(
                     },
                     singleLine = true,
                     label = "Username *",
+                    isError = errorResponse != null && errorResponse!!.hasUsernameError(),
+                    supportingText = if (errorResponse != null) errorResponse!!.usernameError() else null
                 ) {
                     userRequest = userRequest.copy(username = "")
                 }
@@ -131,6 +138,8 @@ fun RegisterScreen(
                     },
                     singleLine = true,
                     label = "Display Name *",
+                    isError = errorResponse != null && errorResponse!!.hasDisplayNameError(),
+                    supportingText = if (errorResponse != null) errorResponse!!.displayNameError() else null
                 ) {
                     userRequest = userRequest.copy(display_name = "")
                 }
@@ -141,7 +150,9 @@ fun RegisterScreen(
                     },
                     singleLine = true,
                     label = "Password *",
-                    visualTransformation = PasswordVisualTransformation('*')
+                    visualTransformation = PasswordVisualTransformation('*'),
+                    isError = errorResponse != null && errorResponse!!.hasPasswordError(),
+                    supportingText = if (errorResponse != null) errorResponse!!.passwordError() else null
                 ) {
                     userRequest = userRequest.copy(password = "")
                 }
@@ -149,10 +160,11 @@ fun RegisterScreen(
                     onClick = {
                         scope.launch {
                             overallError = overallError.copy(detail = "")
+                            errorResponse = null
                             try {
                                 registerResponse = viewModel.register(userRequest)
                             }catch (e: Exception){
-                                overallError = overallError.copy(detail = e.message.toString())
+                                overallError = overallError.copy(detail = "Please Try Again!")
                             }
                         }
                     },
@@ -186,7 +198,7 @@ fun RegisterScreen(
             TextButton(
                 onClick = {
                     navController.navigate(MainScreens.Login.name){
-                        popUpTo(MainScreens.Login.name){
+                        popUpTo(MainScreens.Register.name){
                             inclusive = true
                         }
                         launchSingleTop = true

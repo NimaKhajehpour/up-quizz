@@ -73,7 +73,7 @@ fun LoginScreen(
                 200 -> {
                     appDatastore.saveToken(loginResponse!!.body()!!.access_token)
                     navController.navigate(MainScreens.MainScreen.name){
-                        popUpTo(MainScreens.MainScreen.name){
+                        popUpTo(MainScreens.Login.name){
                             inclusive = true
                         }
                         launchSingleTop = true
@@ -144,7 +144,7 @@ fun LoginScreen(
                             try {
                                 loginResponse = viewModel.login(loginRequest)
                             }catch (e: Exception){
-                                overallError = overallError.copy(detail = e.message.toString())
+                                overallError = overallError.copy(detail = "Please Try Again!")
                             }
                         }
                     },
@@ -178,7 +178,7 @@ fun LoginScreen(
             TextButton(
                 onClick = {
                     navController.navigate(MainScreens.Register.name){
-                        popUpTo(MainScreens.Register.name){
+                        popUpTo(MainScreens.Login.name){
                             inclusive = true
                         }
                         launchSingleTop = true

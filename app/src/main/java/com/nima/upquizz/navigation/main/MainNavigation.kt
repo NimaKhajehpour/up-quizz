@@ -1,5 +1,6 @@
 package com.nima.upquizz.navigation.main
 
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -10,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.nima.upquizz.datastore.AppDatastore
 import com.nima.upquizz.screens.LoginScreen
+import com.nima.upquizz.screens.MainScreen
 import com.nima.upquizz.screens.RegisterScreen
 import org.koin.androidx.compose.koinViewModel
 
@@ -32,6 +34,7 @@ fun MainNavigation() {
                 RegisterScreen(navController, koinViewModel())
             }
             composable(MainScreens.MainScreen.name) {
+                MainScreen(navController, koinViewModel())
             }
         }
     }

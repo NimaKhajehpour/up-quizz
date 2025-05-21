@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +17,7 @@ class AppDatastore(private val context: Context) {
 
         val themeKey = booleanPreferencesKey("Theme")
         val tokenKey = stringPreferencesKey("Token")
+        val adminKey = intPreferencesKey("Admin")
     }
 
     val getTheme: Flow<Boolean> = context.datastore.data
@@ -26,6 +28,17 @@ class AppDatastore(private val context: Context) {
     suspend fun saveTheme(isDark: Boolean){
         context.datastore.edit {
             it[themeKey] = isDark
+        }
+    }
+
+    val getAdmin: Flow<Int> = context.datastore.data
+        .map {
+            it[adminKey] ?: -1
+        }
+
+    suspend fun saveAdmin(isAdmin: Int){
+        context.datastore.edit {
+            it[adminKey] = isAdmin
         }
     }
 

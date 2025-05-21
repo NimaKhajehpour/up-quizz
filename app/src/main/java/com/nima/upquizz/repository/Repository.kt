@@ -8,4 +8,5 @@ class Repository (private val api: Api) {
 
     suspend fun register(userCreate: UserCreateModel) = api.register(userCreate)
     suspend fun login(loginRequest: LoginRequest) = api.login(loginRequest)
+    suspend fun getProfile(token: String) = api.getUserProfile("Bearer $token")
 }

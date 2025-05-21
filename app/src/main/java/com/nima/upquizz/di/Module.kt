@@ -4,6 +4,7 @@ import com.nima.upquizz.network.Api
 import com.nima.upquizz.repository.Repository
 import com.nima.upquizz.utils.Constants
 import com.nima.upquizz.viewmodels.LoginViewModel
+import com.nima.upquizz.viewmodels.MainViewModel
 import com.nima.upquizz.viewmodels.RegisterViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -27,5 +28,8 @@ val module = module {
     }
     viewModel {
         RegisterViewModel(get())
+    }
+    viewModel {
+        MainViewModel(get())
     }
 }

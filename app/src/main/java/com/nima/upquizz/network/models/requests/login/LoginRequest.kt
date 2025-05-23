@@ -1,4 +1,4 @@
-package com.nima.upquizz.network.models.requests
+package com.nima.upquizz.network.models.requests.login
 
 data class LoginRequest(
     var password: String,

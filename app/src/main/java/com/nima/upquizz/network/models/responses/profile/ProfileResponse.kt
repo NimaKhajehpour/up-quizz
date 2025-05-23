@@ -1,4 +1,4 @@
-package com.nima.upquizz.network.models.responses
+package com.nima.upquizz.network.models.responses.profile
 
 data class ProfileResponse(
     val about: String,

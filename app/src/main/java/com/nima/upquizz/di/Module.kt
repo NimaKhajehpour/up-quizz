@@ -3,6 +3,7 @@ package com.nima.upquizz.di
 import com.nima.upquizz.network.Api
 import com.nima.upquizz.repository.Repository
 import com.nima.upquizz.utils.Constants
+import com.nima.upquizz.viewmodels.HomeViewModel
 import com.nima.upquizz.viewmodels.LoginViewModel
 import com.nima.upquizz.viewmodels.MainViewModel
 import com.nima.upquizz.viewmodels.RegisterViewModel
@@ -31,5 +32,8 @@ val module = module {
     }
     viewModel {
         MainViewModel(get())
+    }
+    viewModel{
+        HomeViewModel(get())
     }
 }

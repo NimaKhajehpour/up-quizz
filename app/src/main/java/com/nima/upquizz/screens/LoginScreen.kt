@@ -32,9 +32,9 @@ import com.google.gson.Gson
 import com.nima.upquizz.components.AppTextFieldWithClear
 import com.nima.upquizz.datastore.AppDatastore
 import com.nima.upquizz.navigation.main.MainScreens
-import com.nima.upquizz.network.models.errors.HttpError
-import com.nima.upquizz.network.models.requests.LoginRequest
-import com.nima.upquizz.network.models.responses.TokenResponse
+import com.nima.upquizz.network.models.errors.http.HttpError
+import com.nima.upquizz.network.models.requests.login.LoginRequest
+import com.nima.upquizz.network.models.responses.token.TokenResponse
 import com.nima.upquizz.viewmodels.LoginViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Response

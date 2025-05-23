@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -17,7 +16,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,8 +29,8 @@ import com.nima.upquizz.datastore.AppDatastore
 import com.nima.upquizz.navigation.main.MainScreens
 import com.nima.upquizz.navigation.pages.PagesNavigation
 import com.nima.upquizz.navigation.pages.PagesScreens
-import com.nima.upquizz.network.models.errors.HttpError
-import com.nima.upquizz.network.models.responses.ProfileResponse
+import com.nima.upquizz.network.models.errors.http.HttpError
+import com.nima.upquizz.network.models.responses.profile.ProfileResponse
 import com.nima.upquizz.viewmodels.MainViewModel
 import retrofit2.Response
 
@@ -168,7 +166,7 @@ fun MainScreen(
         }
     }
 
-    if (isAdmin != -1 && overallError.detail.isBlank()){
+    if (isAdmin != -1 && overallError.detail.isBlank() && !token.isNullOrBlank()){
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             bottomBar = {
@@ -178,7 +176,7 @@ fun MainScreen(
             Column(
                 modifier = Modifier.padding(padding)
             ) {
-                PagesNavigation(pagesNavController)
+                PagesNavigation(pagesNavController, token, isAdmin)
             }
         }
     }

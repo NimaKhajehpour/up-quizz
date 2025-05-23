@@ -1,4 +1,4 @@
-package com.nima.upquizz.network.models.requests
+package com.nima.upquizz.network.models.requests.signup
 
 data class UserCreateModel(
     val display_name: String,

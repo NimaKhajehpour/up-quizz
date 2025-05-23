@@ -1,4 +1,4 @@
-package com.nima.upquizz.network.models.errors
+package com.nima.upquizz.network.models.errors.validation
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable

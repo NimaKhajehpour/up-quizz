@@ -1,4 +1,4 @@
-package com.nima.upquizz.network.models.errors
+package com.nima.upquizz.network.models.errors.validation
 
 data class Detail(
     val loc: List<Any>,

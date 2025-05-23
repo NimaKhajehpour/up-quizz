@@ -1,6 +1,5 @@
 package com.nima.upquizz.screens
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -33,10 +32,10 @@ import com.google.gson.Gson
 import com.nima.upquizz.components.AppTextFieldWithClear
 import com.nima.upquizz.datastore.AppDatastore
 import com.nima.upquizz.navigation.main.MainScreens
-import com.nima.upquizz.network.models.errors.HttpError
-import com.nima.upquizz.network.models.errors.ValidationError
-import com.nima.upquizz.network.models.requests.UserCreateModel
-import com.nima.upquizz.network.models.responses.TokenResponse
+import com.nima.upquizz.network.models.errors.http.HttpError
+import com.nima.upquizz.network.models.errors.validation.ValidationError
+import com.nima.upquizz.network.models.requests.signup.UserCreateModel
+import com.nima.upquizz.network.models.responses.token.TokenResponse
 import com.nima.upquizz.viewmodels.RegisterViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Response

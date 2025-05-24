@@ -75,7 +75,7 @@ fun HomeScreen(
     }
 
     LaunchedEffect (toggle){
-        if (query.isBlank()){
+        if (!isSearching){
             showQuizzes = false
             retry = false
             error = HttpError("")
@@ -170,6 +170,9 @@ fun HomeScreen(
                 items(items = quizzes!!.body()!!.items, key = {
                     it.id
                 }){
+                    var expanded by remember {
+                        mutableStateOf(false)
+                    }
                     QuizListItem(
                         isAdmin = isAdmin==1,
                         title = it.title,
@@ -177,6 +180,7 @@ fun HomeScreen(
                         displayName = "Made by: ${it.user.display_name}",
                         rate = "Rate: ${(it.total_rate/it.rate_count).toInt()}/5",
                         category = "Category: ${it.category.name}",
+                        approved = it.approved,
                         onUserClick = {
 
                         },
@@ -185,7 +189,14 @@ fun HomeScreen(
                         },
                         onCategoryClick = {
 
-                        }
+                        },
+                        onAction = {
+
+                        },
+                        onExpand = {
+                            expanded = !expanded
+                        },
+                        expanded = expanded
                     ) { }
                 }
                 if (quizzes!!.body()!!.page != quizzes!!.body()!!.pages){

@@ -12,7 +12,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,6 +39,7 @@ import com.nima.upquizz.viewmodels.HomeViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
@@ -81,24 +84,30 @@ fun HomeScreen(
         mutableStateOf(false)
     }
 
+    var isRefreshing by remember {
+        mutableStateOf(false)
+    }
+
     LaunchedEffect (toggle){
         if (!isSearching){
+            error = HttpError("")
             showQuizzes = false
             retry = false
-            error = HttpError("")
             try{
                 quizzes = viewModel.getAllQuizzes(token, page)
+                isRefreshing = false
             }catch (e: Exception){
                 retry = true
                 error = HttpError("Please try again!")
             }
         }
         if (isSearching){
+            error = HttpError("")
             showQuizzes = false
             retry = false
-            error = HttpError("")
             try{
                 quizzes = viewModel.searchQuizzes(token, query, page)
+                isRefreshing = false
             }catch (e: Exception){
                 retry = true
                 error = HttpError(e.message!!+" Please try again!")
@@ -123,136 +132,157 @@ fun HomeScreen(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = {
+            isRefreshing = true
+            toggle = !toggle
+        }
+
     ) {
-        SearchField(
-            query = query,
-            onSearch = {
-                if (query.isNotBlank()){
-                    isSearching = true
-                    page = 1
-                    toggle = !toggle
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            SearchField(
+                query = query,
+                onSearch = {
+                    if (query.isNotBlank()) {
+                        isSearching = true
+                        page = 1
+                        toggle = !toggle
+                    }
+                },
+                enabled = true,
+                onQueryChanged = {
+                    if (it.isBlank() && isSearching) {
+                        page = 1
+                        isSearching = false
+                        toggle = !toggle
+                    }
+                    query = it
+                },
+                label = "Search Quizzes"
+            )
+            if (!showQuizzes && error.detail.isBlank()) {
+                Column (
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                    CircularProgressIndicator()
                 }
-            },
-            enabled = true,
-            onQueryChanged = {
-                if (it.isBlank() && isSearching){
-                    page = 1
-                    isSearching = false
-                    toggle = !toggle
-                }
-                query = it
-            },
-            label = "Search Quizzes"
-        )
-        if (!showQuizzes && error.detail.isBlank()){
-            CircularProgressIndicator()
-        }
-        if (error.detail.isNotBlank() && !retry){
-            Text(error.detail)
-        }
-        if (error.detail.isNotBlank() && retry){
-            Text(error.detail)
-            Button(
-                onClick = {
-                    toggle = !toggle
-                }
-            ) {
-                Text("Try Again")
             }
-        }
-        if (showQuizzes){
-            LazyColumn (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ){
-                itemsIndexed(items = quizzes!!.body()!!.items){index, it ->
-                    var expanded by remember {
-                        mutableStateOf(false)
+            if (error.detail.isNotBlank() && !retry) {
+                Text(error.detail)
+            }
+            if (error.detail.isNotBlank() && retry) {
+                Text(error.detail)
+                Button(
+                    onClick = {
+                        toggle = !toggle
                     }
-                    QuizListItem(
-                        isAdmin = isAdmin==1,
-                        title = it.title,
-                        description = it.description,
-                        displayName = "Made by: ${it.user.display_name}",
-                        rate = "Rate: ${(it.total_rate/it.rate_count).takeIf { !it.isNaN() } ?: 0}/5",
-                        category = "Category: ${it.category.name}",
-                        approved = it.approved,
-                        onUserClick = {
-                            //todo add user click actions
-                        },
-                        onCategoryClick = {
-                            //todo add category click actions
-                        },
-                        onAction = {
-                            scope.launch {
-                                try{
-                                    viewModel.changeQuizApprove(token, it.id, !it.approved).apply {
-                                        if (isSuccessful){
-                                            expanded = false
-                                            Toast.makeText(context, "Approve status changed", Toast.LENGTH_SHORT).show()
-                                            quizzes!!.body()!!.items[index] = it.copy(approved = !it.approved)
-                                        }else{
-                                            Toast.makeText(
-                                                context,
-                                                "An error occurred",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
+                ) {
+                    Text("Try Again")
+                }
+            }
+            if (showQuizzes) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    itemsIndexed(items = quizzes!!.body()!!.items) { index, it ->
+                        var expanded by remember {
+                            mutableStateOf(false)
+                        }
+                        QuizListItem(
+                            isAdmin = isAdmin == 1,
+                            title = it.title,
+                            description = it.description,
+                            displayName = "Made by: ${it.user.display_name}",
+                            rate = "Rate: ${(it.total_rate / it.rate_count).takeIf { !it.isNaN() } ?: 0}/5",
+                            category = "Category: ${it.category.name}",
+                            approved = it.approved,
+                            onUserClick = {
+                                //todo add user click actions
+                            },
+                            onCategoryClick = {
+                                //todo add category click actions
+                            },
+                            onAction = {
+                                scope.launch {
+                                    try {
+                                        viewModel.changeQuizApprove(token, it.id, !it.approved)
+                                            .apply {
+                                                if (isSuccessful) {
+                                                    expanded = false
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Approve status changed",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                    quizzes!!.body()!!.items[index] =
+                                                        it.copy(approved = !it.approved)
+                                                } else {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "An error occurred",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            }
+                                    } catch (e: Exception) {
+                                        Toast.makeText(
+                                            context,
+                                            "An error occurred",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
-                                }catch (e: Exception){
-                                    Toast.makeText(
-                                        context,
-                                        "An error occurred",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
                                 }
-                            }
-                        },
-                        onExpand = {
-                            expanded = !expanded
-                        },
-                        expanded = expanded
-                    ) {
-                        navController.navigate(PagesScreens.TakeQuizScreen.name+"/${it.id}"){
-                            popUpTo(PagesScreens.HomeScreen.name){
-                                inclusive = true
-                            }
-                            launchSingleTop = true
-                        }
-                    }
-                }
-                if (quizzes!!.body()!!.page != quizzes!!.body()!!.pages){
-                    item {
-                        Button(
-                            onClick = {
-                                scope.launch {
-                                    page++
-                                    toggle = !toggle
-                                }
-                            }
+                            },
+                            onExpand = {
+                                expanded = !expanded
+                            },
+                            expanded = expanded
                         ) {
-                            Text("Next Page")
+                            navController.navigate(PagesScreens.TakeQuizScreen.name + "/${it.id}") {
+                                popUpTo(PagesScreens.HomeScreen.name) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
                         }
                     }
-                }
-                if (quizzes!!.body()!!.page > 1){
-                    item {
-                        Button(
-                            onClick = {
-                                scope.launch {
-                                    page--
-                                    toggle = !toggle
+                    if (quizzes!!.body()!!.page != quizzes!!.body()!!.pages) {
+                        item {
+                            Button(
+                                onClick = {
+                                    scope.launch {
+                                        page++
+                                        toggle = !toggle
+                                    }
                                 }
+                            ) {
+                                Text("Next Page")
                             }
-                        ){
-                            Text("Previous Page")
+                        }
+                    }
+                    if (quizzes!!.body()!!.page > 1) {
+                        item {
+                            Button(
+                                onClick = {
+                                    scope.launch {
+                                        page--
+                                        toggle = !toggle
+                                    }
+                                }
+                            ) {
+                                Text("Previous Page")
+                            }
                         }
                     }
                 }

@@ -75,4 +75,12 @@ interface Api {
         @Header("Authorization") token: String,
         @Body takenQuiz: TakenQuizRequest
     ): Response<Any>
+
+    @Headers("Content-Type: application/json", "accept: application/json")
+    @PUT("quiz/rate/{id}")
+    suspend fun rateQuiz(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int,
+        @Query("rate") rate: Int
+    ): Response<Any>
 }

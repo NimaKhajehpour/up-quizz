@@ -6,6 +6,7 @@ import com.nima.upquizz.utils.Constants
 import com.nima.upquizz.viewmodels.HomeViewModel
 import com.nima.upquizz.viewmodels.LoginViewModel
 import com.nima.upquizz.viewmodels.MainViewModel
+import com.nima.upquizz.viewmodels.RateQuizViewModel
 import com.nima.upquizz.viewmodels.RegisterViewModel
 import com.nima.upquizz.viewmodels.TakeQuizViewModel
 import org.koin.core.module.dsl.viewModel
@@ -39,5 +40,8 @@ val module = module {
     }
     viewModel{
         TakeQuizViewModel(get())
+    }
+    viewModel{
+        RateQuizViewModel(get())
     }
 }

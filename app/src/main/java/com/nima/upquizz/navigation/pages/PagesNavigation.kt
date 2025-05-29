@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.nima.upquizz.screens.HomeScreen
+import com.nima.upquizz.screens.RateQuizScreen
 import com.nima.upquizz.screens.TakeQuizScreen
 import org.koin.androidx.compose.koinViewModel
 
@@ -31,14 +32,23 @@ fun PagesNavigation(navController: NavHostController, token: String, isAdmin: In
         ){
             TakeQuizScreen(navController, token, isAdmin, it.arguments?.getInt("id"), koinViewModel())
         }
-        composable(PagesScreens.RateQuizScreen.name+"/{id}/{corrects}/{total}",
+        composable(PagesScreens.RateQuizScreen.name+"/{id}/{title}/{corrects}/{total}",
             arguments = listOf(
                 navArgument("id"){type = NavType.IntType},
+                navArgument("title"){type = NavType.StringType},
                 navArgument("corrects"){type = NavType.IntType},
                 navArgument("total"){type = NavType.IntType}
             )
             ){
-            Text("RateScreen")
+            RateQuizScreen(
+                token,
+                navController,
+                koinViewModel(),
+                it.arguments?.getInt("id")!!,
+                it.arguments?.getString("title")!!,
+                it.arguments?.getInt("corrects")!!,
+                it.arguments?.getInt("total")!!
+            )
         }
     }
 }

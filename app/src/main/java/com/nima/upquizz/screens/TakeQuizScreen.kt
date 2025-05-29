@@ -220,7 +220,7 @@ fun TakeQuizScreen(
             if (savedResponse != null){
                 when(savedResponse!!.code()){
                     204 ->{
-                        navController.navigate(PagesScreens.RateQuizScreen.name+"/$id/$correctAnswers/${questions.size}"){
+                        navController.navigate(PagesScreens.RateQuizScreen.name+"/$id/${quiz!!.body()!!.title}/$correctAnswers/${questions.size}"){
                             popUpTo(PagesScreens.TakeQuizScreen.name+"/$id"){
                                 inclusive = true
                             }

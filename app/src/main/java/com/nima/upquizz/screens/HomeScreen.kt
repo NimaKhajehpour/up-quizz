@@ -181,7 +181,7 @@ fun HomeScreen(
                         title = it.title,
                         description = it.description,
                         displayName = "Made by: ${it.user.display_name}",
-                        rate = "Rate: ${(it.total_rate/it.rate_count).toInt()}/5",
+                        rate = "Rate: ${(it.total_rate/it.rate_count).takeIf { !it.isNaN() } ?: 0}/5",
                         category = "Category: ${it.category.name}",
                         approved = it.approved,
                         onUserClick = {

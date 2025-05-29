@@ -15,4 +15,5 @@ class Repository (private val api: Api) {
     suspend fun changeQuizApprove(token: String, id: Int, approved: Boolean) = api.changeQuizApprove(token = "Bearer $token", id = id, approved = approved)
     suspend fun getQuizById(token: String, id: Int) = api.getQuizById("Bearer $token", id)
     suspend fun addTakenQuiz(token: String, takenQuiz: TakenQuizRequest) = api.addTakenQuiz("Bearer $token", takenQuiz)
+    suspend fun rateQuiz(token: String, id: Int, rate: Int) = api.rateQuiz("Bearer $token", id, rate)
 }

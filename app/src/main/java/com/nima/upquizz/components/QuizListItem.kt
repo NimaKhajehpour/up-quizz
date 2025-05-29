@@ -44,7 +44,6 @@ fun QuizListItem(
     approved: Boolean,
     expanded: Boolean = false,
     onUserClick: () -> Unit,
-    onRateClick: () -> Unit,
     onCategoryClick: () -> Unit,
     onExpand: (() -> Unit)? = null,
     onAction: (() -> Unit)? = null,
@@ -84,7 +83,6 @@ fun QuizListItem(
                 TagComponent(
                     title = rate
                 ) {
-                    onRateClick()
                 }
                 TagComponent(
                     title = category
@@ -105,7 +103,8 @@ fun QuizListItem(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
-                )
+                ),
+                enabled = approved
             ) {
                 Text("Take Quiz")
             }
@@ -150,7 +149,7 @@ fun QuizListItem(
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp)
+                            .padding(vertical = 8.dp)
                     ) {
                         Text(if (approved) "Unapprove" else "Approve")
                     }

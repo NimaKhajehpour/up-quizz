@@ -7,4 +7,5 @@ class HomeViewModel(private val repository: Repository): ViewModel() {
 
     suspend fun getAllQuizzes(token: String, page: Int = 1) = repository.getAllQuizzes(token, page)
     suspend fun searchQuizzes(token: String, query: String, page: Int = 1) = repository.searchQuizzes(token, query, page)
+    suspend fun changeQuizApprove(token: String, id: Int, approved: Boolean) = repository.changeQuizApprove(token, id, approved)
 }

@@ -1,5 +1,7 @@
 package com.nima.upquizz.screens
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -20,11 +23,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.navArgument
 import com.google.gson.Gson
 import com.nima.upquizz.components.QuizListItem
 import com.nima.upquizz.components.SearchField
+import com.nima.upquizz.navigation.pages.PagesScreens
 import com.nima.upquizz.network.models.errors.http.HttpError
 import com.nima.upquizz.network.models.responses.quiz.list.QuizListResponse
 import com.nima.upquizz.viewmodels.HomeViewModel
@@ -41,6 +47,7 @@ fun HomeScreen(
 
     val scope = rememberCoroutineScope()
     val gson = Gson()
+    val context = LocalContext.current
 
     var query by remember {
         mutableStateOf("")
@@ -149,14 +156,12 @@ fun HomeScreen(
         }
         if (error.detail.isNotBlank() && retry){
             Text(error.detail)
-            if (query.isBlank()){
-                Button(
-                    onClick = {
-                        toggle = !toggle
-                    }
-                ) {
-                    Text("Try Again")
+            Button(
+                onClick = {
+                    toggle = !toggle
                 }
+            ) {
+                Text("Try Again")
             }
         }
         if (showQuizzes){
@@ -167,9 +172,7 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
-                items(items = quizzes!!.body()!!.items, key = {
-                    it.id
-                }){
+                itemsIndexed(items = quizzes!!.body()!!.items){index, it ->
                     var expanded by remember {
                         mutableStateOf(false)
                     }
@@ -182,22 +185,48 @@ fun HomeScreen(
                         category = "Category: ${it.category.name}",
                         approved = it.approved,
                         onUserClick = {
-
-                        },
-                        onRateClick = {
-
+                            //todo add user click actions
                         },
                         onCategoryClick = {
-
+                            //todo add category click actions
                         },
                         onAction = {
-
+                            scope.launch {
+                                try{
+                                    viewModel.changeQuizApprove(token, it.id, !it.approved).apply {
+                                        if (isSuccessful){
+                                            expanded = false
+                                            Toast.makeText(context, "Approve status changed", Toast.LENGTH_SHORT).show()
+                                            quizzes!!.body()!!.items[index] = it.copy(approved = !it.approved)
+                                        }else{
+                                            Toast.makeText(
+                                                context,
+                                                "An error occurred",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    }
+                                }catch (e: Exception){
+                                    Toast.makeText(
+                                        context,
+                                        "An error occurred",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
                         },
                         onExpand = {
                             expanded = !expanded
                         },
                         expanded = expanded
-                    ) { }
+                    ) {
+                        navController.navigate(PagesScreens.TakeQuizScreen.name+"/${it.id}"){
+                            popUpTo(PagesScreens.HomeScreen.name){
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    }
                 }
                 if (quizzes!!.body()!!.page != quizzes!!.body()!!.pages){
                     item {
@@ -210,6 +239,20 @@ fun HomeScreen(
                             }
                         ) {
                             Text("Next Page")
+                        }
+                    }
+                }
+                if (quizzes!!.body()!!.page > 1){
+                    item {
+                        Button(
+                            onClick = {
+                                scope.launch {
+                                    page--
+                                    toggle = !toggle
+                                }
+                            }
+                        ){
+                            Text("Previous Page")
                         }
                     }
                 }

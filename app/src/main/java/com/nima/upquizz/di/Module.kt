@@ -7,6 +7,7 @@ import com.nima.upquizz.viewmodels.HomeViewModel
 import com.nima.upquizz.viewmodels.LoginViewModel
 import com.nima.upquizz.viewmodels.MainViewModel
 import com.nima.upquizz.viewmodels.RegisterViewModel
+import com.nima.upquizz.viewmodels.TakeQuizViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -35,5 +36,8 @@ val module = module {
     }
     viewModel{
         HomeViewModel(get())
+    }
+    viewModel{
+        TakeQuizViewModel(get())
     }
 }

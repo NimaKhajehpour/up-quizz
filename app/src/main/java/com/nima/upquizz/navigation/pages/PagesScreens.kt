@@ -4,5 +4,8 @@ enum class PagesScreens {
     HomeScreen,
     CategoriesScreen,
     UsersScreen,
-    SettingsScreen
+    SettingsScreen,
+    TakeQuizScreen,
+    RateQuizScreen,
+
 }

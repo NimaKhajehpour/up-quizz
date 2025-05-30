@@ -1,5 +1,6 @@
 package com.nima.upquizz.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -34,6 +36,7 @@ import com.nima.upquizz.network.models.responses.profile.ProfileResponse
 import com.nima.upquizz.viewmodels.MainViewModel
 import retrofit2.Response
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
@@ -165,16 +168,16 @@ fun MainScreen(
             }
         }
     }
-
     if (isAdmin != -1 && overallError.detail.isBlank() && !token.isNullOrBlank()){
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             bottomBar = {
                 BottomNav(pagesNavController, destination, mainPages)
-            }
-        ) { padding ->
+            },
+        ) {  padding ->
             Column(
                 modifier = Modifier.padding(padding)
+                    .padding(top = 0.dp)
             ) {
                 PagesNavigation(pagesNavController, token, isAdmin)
             }

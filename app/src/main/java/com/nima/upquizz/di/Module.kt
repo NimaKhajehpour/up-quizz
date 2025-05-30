@@ -4,6 +4,7 @@ import com.nima.upquizz.network.Api
 import com.nima.upquizz.repository.Repository
 import com.nima.upquizz.utils.Constants
 import com.nima.upquizz.viewmodels.CategoriesViewModel
+import com.nima.upquizz.viewmodels.CategoryViewModel
 import com.nima.upquizz.viewmodels.HomeViewModel
 import com.nima.upquizz.viewmodels.LoginViewModel
 import com.nima.upquizz.viewmodels.MainViewModel
@@ -47,5 +48,8 @@ val module = module {
     }
     viewModel{
         CategoriesViewModel(get())
+    }
+    viewModel {
+        CategoryViewModel(get())
     }
 }

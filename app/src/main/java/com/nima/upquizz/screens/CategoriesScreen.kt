@@ -187,7 +187,7 @@ fun CategoriesScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
+                        .padding(top = 8.dp),
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -266,7 +266,7 @@ fun CategoriesScreen(
                             },
                             expanded = expanded
                         ) {
-                            navController.navigate(PagesScreens.CategoryScreen.name+"/${it.id}"){
+                            navController.navigate(PagesScreens.CategoryScreen.name+"/${it.id}/${it.name}"){
                                 popUpTo(PagesScreens.CategoriesScreen.name){
                                     inclusive = true
                                 }

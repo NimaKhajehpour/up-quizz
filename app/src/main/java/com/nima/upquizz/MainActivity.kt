@@ -8,9 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import com.nima.upquizz.datastore.AppDatastore
 import com.nima.upquizz.navigation.main.MainNavigation
 import com.nima.upquizz.ui.theme.UpQuizzTheme
@@ -26,12 +29,9 @@ class MainActivity : ComponentActivity() {
             UpQuizzTheme(
                 darkTheme = theme
             ) {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(
-                        modifier = Modifier.padding(innerPadding)
-                    ) {
-                        MainNavigation()
-                    }
+                Surface (
+                ) {
+                    MainNavigation()
                 }
             }
         }

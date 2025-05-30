@@ -158,3 +158,123 @@ fun QuizListItem(
         }
     }
 }
+
+@Composable
+fun QuizListItem(
+    modifier: Modifier = Modifier,
+    isAdmin: Boolean,
+    title: String,
+    displayName: String,
+    rate: String,
+    description: String,
+    approved: Boolean,
+    expanded: Boolean = false,
+    onUserClick: () -> Unit,
+    onExpand: (() -> Unit)? = null,
+    onAction: (() -> Unit)? = null,
+    onClick: () -> Unit
+) {
+
+    ElevatedCard(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp, horizontal = 32.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        )
+    ) {
+        Column (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 15.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start
+        ){
+            Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.padding(bottom = 5.dp)
+            )
+            FlowRow (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 5.dp),
+                verticalArrangement = Arrangement.Top,
+                horizontalArrangement = Arrangement.Start
+            ){
+                TagComponent(
+                    title = displayName,
+                ) {
+                    onUserClick()
+                }
+                TagComponent(
+                    title = rate
+                ) {
+                }
+            }
+            Text(description, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            Button(
+                onClick = {
+                    onClick()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                enabled = approved
+            ) {
+                Text("Take Quiz")
+            }
+            if (isAdmin){
+                HorizontalDivider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 5.dp)
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                        .background(Color.Transparent, RoundedCornerShape(100))
+                        .clip(RoundedCornerShape(100))
+                        .clickable {
+                            if (onExpand != null) {
+                                onExpand()
+                            }
+                        },
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ){
+                    IconButton(
+                        onClick = onExpand ?: {},
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = MaterialTheme.colorScheme.primary
+                        ),
+                    ) {
+                        if (expanded) {
+                            Icon(painterResource(R.drawable.arrow_up), null, Modifier.size(24.dp))
+                        } else {
+                            Icon(painterResource(R.drawable.arrow_down), null, Modifier.size(24.dp))
+                        }
+                    }
+                }
+                AnimatedVisibility (expanded){
+                    Button(
+                        onClick = onAction ?: {},
+                        colors = ButtonDefaults.buttonColors(
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+                        Text(if (approved) "Unapprove" else "Approve")
+                    }
+                }
+            }
+        }
+    }
+}

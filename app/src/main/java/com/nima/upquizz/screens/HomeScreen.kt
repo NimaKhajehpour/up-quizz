@@ -191,7 +191,7 @@ fun HomeScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
+                        .padding(top = 8.dp),
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -211,7 +211,7 @@ fun HomeScreen(
                                 //todo add user click actions
                             },
                             onCategoryClick = {
-                                navController.navigate(PagesScreens.CategoryScreen.name+"/${it.category.id}"){
+                                navController.navigate(PagesScreens.CategoryScreen.name+"/${it.category.id}/${it.category.name}"){
                                     popUpTo(PagesScreens.HomeScreen.name){
                                         inclusive = true
                                     }

@@ -11,6 +11,7 @@ class Repository (private val api: Api) {
     suspend fun login(loginRequest: LoginRequest) = api.login(loginRequest)
     suspend fun getProfile(token: String) = api.getUserProfile("Bearer $token")
     suspend fun getAllQuizzes(token: String, page: Int = 1, size: Int = 10) = api.getAllQuizzes("Bearer $token", page = page, size = size)
+    suspend fun filterQuizzes(token: String, page: Int = 1, size: Int = 10, id: Int) = api.filterQuizzes("Bearer $token", page = page, size = size, id = id)
     suspend fun searchQuizzes(token: String, query: String, page: Int = 1, size: Int = 10) = api.searchQuizzes("Bearer $token", query, page, size)
     suspend fun changeQuizApprove(token: String, id: Int, approved: Boolean) = api.changeQuizApprove(token = "Bearer $token", id = id, approved = approved)
     suspend fun getQuizById(token: String, id: Int) = api.getQuizById("Bearer $token", id)

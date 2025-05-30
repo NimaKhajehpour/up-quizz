@@ -5,6 +5,7 @@ import com.nima.upquizz.network.models.requests.login.LoginRequest
 import com.nima.upquizz.network.models.requests.signup.UserCreateModel
 import com.nima.upquizz.network.models.responses.category.list.CategoryListResponse
 import com.nima.upquizz.network.models.responses.profile.ProfileResponse
+import com.nima.upquizz.network.models.responses.quiz.filter.QuizFilterResponse
 import com.nima.upquizz.network.models.responses.quiz.item.QuizResponse
 import com.nima.upquizz.network.models.responses.quiz.list.QuizListResponse
 import com.nima.upquizz.network.models.responses.token.TokenResponse
@@ -85,6 +86,15 @@ interface Api {
         @Path("id") id: Int,
         @Query("rate") rate: Int
     ): Response<Any>
+
+    @Headers("Content-Type: application/json", "accept: application/json")
+    @GET("quiz/filter")
+    suspend fun filterQuizzes(
+        @Header("Authorization") token: String,
+        @Query("category_id") id: Int,
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 1
+    ): Response<QuizFilterResponse>
 
     @Headers("Content-Type: application/json")
     @GET("category")

@@ -1,6 +1,5 @@
 package com.nima.upquizz.screens
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,26 +26,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.navArgument
 import com.google.gson.Gson
-import com.nima.upquizz.components.QuizListItem
+import com.nima.upquizz.components.CategoryListItem
 import com.nima.upquizz.components.SearchField
 import com.nima.upquizz.navigation.pages.PagesScreens
 import com.nima.upquizz.network.models.errors.http.HttpError
-import com.nima.upquizz.network.models.responses.quiz.list.QuizListResponse
-import com.nima.upquizz.viewmodels.HomeViewModel
+import com.nima.upquizz.network.models.responses.category.list.CategoryListResponse
+import com.nima.upquizz.viewmodels.CategoriesViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(
+fun CategoriesScreen(
     navController: NavController,
+    viewModel: CategoriesViewModel,
     token: String,
-    isAdmin: Int,
-    viewModel: HomeViewModel
+    isAdmin: Int
 ) {
-
     val scope = rememberCoroutineScope()
     val gson = Gson()
     val context = LocalContext.current
@@ -56,11 +52,11 @@ fun HomeScreen(
         mutableStateOf("")
     }
 
-    var quizzes: Response<QuizListResponse>? by remember {
+    var categories: Response<CategoryListResponse>? by remember {
         mutableStateOf(null)
     }
 
-    var showQuizzes by remember {
+    var showCategories by remember {
         mutableStateOf(false)
     }
 
@@ -91,10 +87,10 @@ fun HomeScreen(
     LaunchedEffect (toggle){
         if (!isSearching){
             error = HttpError("")
-            showQuizzes = false
+            showCategories = false
             retry = false
             try{
-                quizzes = viewModel.getAllQuizzes(token, page)
+                categories = viewModel.getAllCategories(token, page)
                 isRefreshing = false
             }catch (e: Exception){
                 retry = true
@@ -103,10 +99,10 @@ fun HomeScreen(
         }
         if (isSearching){
             error = HttpError("")
-            showQuizzes = false
+            showCategories = false
             retry = false
             try{
-                quizzes = viewModel.searchQuizzes(token, query, page)
+                categories = viewModel.searchCategories(token, query, page)
                 isRefreshing = false
             }catch (e: Exception){
                 retry = true
@@ -115,18 +111,18 @@ fun HomeScreen(
         }
     }
 
-    LaunchedEffect (quizzes){
-        if (quizzes != null){
-            when(quizzes!!.code()){
+    LaunchedEffect (categories){
+        if (categories != null){
+            when(categories!!.code()){
                 200 ->{
                     retry = false
                     error = HttpError("")
-                    showQuizzes = true
+                    showCategories = true
                 }
                 else ->{
-                    showQuizzes = false
+                    showCategories = false
                     retry = false
-                    error = gson.fromJson(quizzes!!.errorBody()!!.string(), HttpError::class.java)
+                    error = gson.fromJson(categories!!.errorBody()!!.string(), HttpError::class.java)
                 }
             }
         }
@@ -163,9 +159,9 @@ fun HomeScreen(
                     }
                     query = it
                 },
-                label = "Search Quizzes"
+                label = "Search Categories"
             )
-            if (!showQuizzes && error.detail.isBlank()) {
+            if (!showCategories && error.detail.isBlank()) {
                 Column (
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
@@ -187,7 +183,7 @@ fun HomeScreen(
                     Text("Try Again")
                 }
             }
-            if (showQuizzes) {
+            if (showCategories) {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -195,33 +191,19 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    itemsIndexed(items = quizzes!!.body()!!.items) { index, it ->
+                    itemsIndexed(items = categories!!.body()!!.items) { index, it ->
                         var expanded by remember {
                             mutableStateOf(false)
                         }
-                        QuizListItem(
+                        CategoryListItem(
                             isAdmin = isAdmin == 1,
-                            title = it.title,
+                            title = it.name,
                             description = it.description,
-                            displayName = "Made by: ${it.user.display_name}",
-                            rate = "Rate: ${(it.total_rate / it.rate_count).takeIf { !it.isNaN() } ?: 0}/5",
-                            category = "Category: ${it.category.name}",
                             approved = it.approved,
-                            onUserClick = {
-                                //todo add user click actions
-                            },
-                            onCategoryClick = {
-                                navController.navigate(PagesScreens.CategoryScreen.name+"/${it.category.id}"){
-                                    popUpTo(PagesScreens.HomeScreen.name){
-                                        inclusive = true
-                                    }
-                                    launchSingleTop = true
-                                }
-                            },
-                            onAction = {
+                            onApprove = {
                                 scope.launch {
                                     try {
-                                        viewModel.changeQuizApprove(token, it.id, !it.approved)
+                                        viewModel.changeCategoryApprove(token, it.id, !it.approved)
                                             .apply {
                                                 if (isSuccessful) {
                                                     expanded = false
@@ -230,8 +212,38 @@ fun HomeScreen(
                                                         "Approve status changed",
                                                         Toast.LENGTH_SHORT
                                                     ).show()
-                                                    quizzes!!.body()!!.items[index] =
+                                                    categories!!.body()!!.items[index] =
                                                         it.copy(approved = !it.approved)
+                                                } else {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "An error occurred",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            }
+                                    } catch (e: Exception) {
+                                        Toast.makeText(
+                                            context,
+                                            "An error occurred",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            },
+                            onDelete = {
+                                scope.launch {
+                                    try {
+                                        viewModel.deleteCategory(token, it.id)
+                                            .apply {
+                                                if (isSuccessful) {
+                                                    expanded = false
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Category Deleted",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                    categories!!.body()!!.items.removeAt(index)
                                                 } else {
                                                     Toast.makeText(
                                                         context,
@@ -254,15 +266,15 @@ fun HomeScreen(
                             },
                             expanded = expanded
                         ) {
-                            navController.navigate(PagesScreens.TakeQuizScreen.name + "/${it.id}") {
-                                popUpTo(PagesScreens.HomeScreen.name) {
+                            navController.navigate(PagesScreens.CategoryScreen.name+"/${it.id}"){
+                                popUpTo(PagesScreens.CategoriesScreen.name){
                                     inclusive = true
                                 }
                                 launchSingleTop = true
                             }
                         }
                     }
-                    if (quizzes!!.body()!!.page != quizzes!!.body()!!.pages) {
+                    if (categories!!.body()!!.page != categories!!.body()!!.pages) {
                         item {
                             Button(
                                 onClick = {
@@ -276,7 +288,7 @@ fun HomeScreen(
                             }
                         }
                     }
-                    if (quizzes!!.body()!!.page > 1) {
+                    if (categories!!.body()!!.page > 1) {
                         item {
                             Button(
                                 onClick = {

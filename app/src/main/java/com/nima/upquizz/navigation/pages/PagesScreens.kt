@@ -7,5 +7,5 @@ enum class PagesScreens {
     SettingsScreen,
     TakeQuizScreen,
     RateQuizScreen,
-
+    CategoryScreen
 }

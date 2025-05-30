@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.nima.upquizz.screens.CategoriesScreen
 import com.nima.upquizz.screens.HomeScreen
 import com.nima.upquizz.screens.RateQuizScreen
 import com.nima.upquizz.screens.TakeQuizScreen
@@ -19,7 +20,9 @@ fun PagesNavigation(navController: NavHostController, token: String, isAdmin: In
             HomeScreen(navController, token, isAdmin, koinViewModel())
         }
         composable(PagesScreens.CategoriesScreen.name){
-            Text("Cat")
+            CategoriesScreen(
+                navController, koinViewModel(), token, isAdmin
+            )
         }
         composable(PagesScreens.UsersScreen.name){
             Text("User")
@@ -49,6 +52,11 @@ fun PagesNavigation(navController: NavHostController, token: String, isAdmin: In
                 it.arguments?.getInt("corrects")!!,
                 it.arguments?.getInt("total")!!
             )
+        }
+        composable(PagesScreens.CategoryScreen.name+"/{id}",
+            arguments = listOf(navArgument("id"){type = NavType.IntType})
+            ){
+            Text("Category")
         }
     }
 }

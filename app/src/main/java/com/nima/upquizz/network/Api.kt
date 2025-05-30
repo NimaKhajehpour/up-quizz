@@ -3,12 +3,14 @@ package com.nima.upquizz.network
 import com.nima.upquizz.network.models.requests.TakenQuizRequest
 import com.nima.upquizz.network.models.requests.login.LoginRequest
 import com.nima.upquizz.network.models.requests.signup.UserCreateModel
+import com.nima.upquizz.network.models.responses.category.list.CategoryListResponse
 import com.nima.upquizz.network.models.responses.profile.ProfileResponse
 import com.nima.upquizz.network.models.responses.quiz.item.QuizResponse
 import com.nima.upquizz.network.models.responses.quiz.list.QuizListResponse
 import com.nima.upquizz.network.models.responses.token.TokenResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
@@ -82,5 +84,37 @@ interface Api {
         @Header("Authorization") token: String,
         @Path("id") id: Int,
         @Query("rate") rate: Int
+    ): Response<Any>
+
+    @Headers("Content-Type: application/json")
+    @GET("category")
+    suspend fun getAllCategories(
+        @Header("Authorization") token: String,
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 1
+    ): Response<CategoryListResponse>
+
+    @Headers("Content-Type: application/json")
+    @GET("category/search")
+    suspend fun searchCategories(
+        @Header("Authorization") token: String,
+        @Query("query") query: String,
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 1
+    ): Response<CategoryListResponse>
+
+    @Headers("Content-Type: application/json", "accept: application/json")
+    @PUT("category/approve/{id}")
+    suspend fun changeCategoryApprove(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int,
+        @Query("approved") approved: Boolean
+    ): Response<Any>
+
+    @Headers("Content-Type: application/json", "accept: application/json")
+    @DELETE("category/{id}")
+    suspend fun deleteCategory(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int,
     ): Response<Any>
 }
